@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Attendance Portal — Ethiraj College for Women</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0d1f3c;
+    --navy-mid: #152c50;
+    --navy-light: #1e3d6b;
+    --gold: #c9a84c;
+    --gold-light: #e4c97a;
+    --gold-pale: #f5e9c8;
+    --cream: #fdf8ef;
+    --white: #ffffff;
+    --text-muted: #7a8ba6;
+    --border: rgba(201,168,76,0.25);
+    --error: #c0392b;
+    --success: #1a6b3a;
+    --shadow: 0 8px 40px rgba(13,31,60,0.18);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--navy);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(201,168,76,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 80% at 80% 80%, rgba(30,61,107,0.6) 0%, transparent 60%),
+      repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(201,168,76,0.015) 40px, rgba(201,168,76,0.015) 41px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle at top left, rgba(201,168,76,0.12), transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page-wrapper {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 32px 16px;
+    align-items: center;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    text-align: center;
+    margin-bottom: 32px;
+    animation: fadeDown 0.7s ease both;
+  }
+
+  .header-inner {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .college-logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 2px solid var(--gold);
+    object-fit: cover;
+    background: var(--navy-mid);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-shadow: 0 0 0 6px rgba(201,168,76,0.12), 0 4px 20px rgba(0,0,0,0.3);
+  }
+
+  .college-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .college-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(20px, 4vw, 28px);
+    font-weight: 700;
+    color: var(--gold-light);
+    letter-spacing: 1.5px;
+    line-height: 1.2;
+  }
+
+  .college-sub {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 280px;
+    margin: 4px auto 0;
+  }
+
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold), transparent);
+  }
+
+  .divider-diamond {
+    width: 6px;
+    height: 6px;
+    background: var(--gold);
+    transform: rotate(45deg);
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 540px;
+    padding: 36px 32px 28px;
+    box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.06);
+    animation: fadeUp 0.7s 0.15s ease both;
+  }
+
+  .card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+
+  .card-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  /* ── NOTICE ── */
+  .notice {
+    background: rgba(201,168,76,0.08);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--gold-pale);
+    margin-bottom: 24px;
+    line-height: 1.6;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .notice-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+
+  /* ── FORM ── */
+  .form-grid { display: grid; gap: 18px; }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field.full { grid-column: 1 / -1; }
+
+  label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  label .req { color: var(--gold); margin-left: 2px; }
+
+  input, select {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--white);
+    width: 100%;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+  }
+
+  /* Fix: date inputs need explicit color for the text value */
+  input[type="date"] {
+    color-scheme: dark;
+    color: var(--white);
+  }
+
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23c9a84c' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+    cursor: pointer;
+  }
+
+  select option { background: var(--navy-mid); color: var(--white); }
+
+  input::placeholder { color: rgba(255,255,255,0.2); }
+
+  input:focus, select:focus {
+    border-color: var(--gold);
+    background: rgba(201,168,76,0.06);
+    box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
+  }
+
+  /* Only show red border when explicitly marked .error — NOT on :invalid */
+  input.error, select.error { border-color: #e74c3c !important; box-shadow: 0 0 0 3px rgba(231,76,60,0.12) !important; }
+  input.valid, select.valid { border-color: #2ecc71 !important; }
+
+  /* Remove browser default red outline */
+  input:invalid, select:invalid { box-shadow: none; }
+
+  .field-error {
+    font-size: 11px;
+    color: #e74c3c;
+    display: none;
+    margin-top: 2px;
+  }
+  .field-error.show { display: block; }
+
+  /* ── SECTION DIVIDER ── */
+  .section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.7;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+    margin-bottom: 4px;
+  }
+
+  /* ── SUBMIT BUTTON ── */
+  .btn-submit {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--gold) 0%, #b8902a 100%);
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--navy);
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+    box-shadow: 0 4px 16px rgba(201,168,76,0.3);
+    margin-top: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-submit::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+  }
+
+  .btn-submit:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(201,168,76,0.45); }
+  .btn-submit:active:not(:disabled) { transform: translateY(0); }
+  .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  /* ── SUCCESS OVERLAY ── */
+  .success-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(13,31,60,0.92);
+    backdrop-filter: blur(8px);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s;
+  }
+
+  .success-overlay.show { opacity: 1; pointer-events: all; }
+
+  .success-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 20px;
+    padding: 48px 40px;
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+    transform: scale(0.9);
+    transition: transform 0.4s;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+  }
+
+  .success-overlay.show .success-card { transform: scale(1); }
+
+  /* Animated tick */
+  .tick-wrap {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+  }
+
+  .tick-svg { width: 80px; height: 80px; }
+
+  .tick-circle {
+    fill: none;
+    stroke: #2ecc71;
+    stroke-width: 3;
+    stroke-dasharray: 226;
+    stroke-dashoffset: 226;
+  }
+
+  .tick-check {
+    fill: none;
+    stroke: #2ecc71;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 60;
+    stroke-dashoffset: 60;
+  }
+
+  .success-overlay.show .tick-circle {
+    animation: drawCircle 0.55s ease forwards 0.1s;
+  }
+
+  .success-overlay.show .tick-check {
+    animation: drawCheck 0.35s ease forwards 0.6s;
+  }
+
+  @keyframes drawCircle { to { stroke-dashoffset: 0; } }
+  @keyframes drawCheck  { to { stroke-dashoffset: 0; } }
+
+  .success-registered {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #2ecc71;
+    background: rgba(46,204,113,0.1);
+    border: 1px solid rgba(46,204,113,0.25);
+    border-radius: 20px;
+    padding: 5px 16px;
+    display: inline-block;
+    margin-bottom: 14px;
+  }
+
+  .success-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+
+  .success-msg {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 4px;
+  }
+
+  .success-name {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-bottom: 20px;
+  }
+
+  .success-meta {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+    text-align: left;
+  }
+
+  .meta-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .meta-row:last-child { border-bottom: none; }
+  .meta-key { color: var(--text-muted); }
+  .meta-val { color: var(--white); font-weight: 600; }
+
+  .btn-close {
+    padding: 12px 32px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .btn-close:hover { border-color: var(--gold); color: var(--gold-light); }
+
+  /* ── FOOTER ── */
+  .footer {
+    margin-top: auto;
+    padding-top: 28px;
+    text-align: center;
+    font-size: 12px;
+    color: rgba(122,139,166,0.6);
+    animation: fadeUp 0.7s 0.3s ease both;
+    line-height: 2;
+  }
+
+  .footer a { color: rgba(201,168,76,0.6); text-decoration: none; transition: color 0.2s; }
+  .footer a:hover { color: var(--gold); }
+  .footer-sep { margin: 0 8px; opacity: 0.3; }
+
+  @keyframes fadeDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeUp   { from { opacity:0; transform:translateY(20px);  } to { opacity:1; transform:translateY(0); } }
+
+  @media (max-width: 520px) {
+    .card { padding: 28px 20px 22px; }
+    .form-row { grid-template-columns: 1fr; }
+    .success-card { padding: 36px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-wrapper">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="college-logo" id="logoWrapper">
+        <img id="collegeLogo"
+          src="alice1.JPG"
+          alt="Ethiraj College for Women Logo"
+          onerror="this.style.display='none';document.getElementById('logoFallback').style.display='flex';"
+          onload="this.style.display='block';document.getElementById('logoFallback').style.display='none';"
+          style="width:100%;height:100%;object-fit:cover;display:none;">
+        <span id="logoFallback"
+          style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;"
+          title="Click to upload your logo"
+          onclick="document.getElementById('logoFileInput').click()">
+          <svg width="22" height="22" fill="none" stroke="#c9a84c" stroke-width="1.5" viewBox="0 0 24 24">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          <span style="font-size:9px;color:#c9a84c;letter-spacing:1px;font-family:DM Sans,sans-serif;">LOGO</span>
+        </span>
+      </div>
+      <div>
+        <div class="college-name">Ethiraj College for Women</div>
+        <div class="college-sub">Autonomous · Chennai · Est. 1948</div>
+      </div>
+      <div class="divider"><div class="divider-diamond"></div></div>
+    </div>
+  </header>
+
+  <!-- LOGIN CARD -->
+  <main>
+    <div class="card">
+      <div class="card-title">Student Attendance Portal</div>
+      <div class="card-subtitle">Sign in to mark your attendance for today's session.</div>
+
+      <div class="notice">
+        <span class="notice-icon">⚠</span>
+        <span>Please use your <strong>personal credentials only</strong>. Do not share your admission number or login details with others. Unauthorized access is subject to disciplinary action.</span>
+      </div>
+
+      <form id="loginForm" novalidate>
+        <div class="form-grid">
+
+          <div class="section-label">Personal Details</div>
+
+          <!-- Full Name -->
+          <div class="field full">
+            <label for="fullName">Full Name <span class="req">*</span></label>
+            <input type="text" id="fullName" placeholder="As per college records" autocomplete="name">
+            <div class="field-error" id="nameError">Please enter your full name (min. 3 characters).</div>
+          </div>
+
+          <!-- DOB & Admission No -->
+          <div class="form-row">
+            <div class="field">
+              <label for="dob">Date of Birth <span class="req">*</span></label>
+              <input type="date" id="dob" max="">
+              <div class="field-error" id="dobError">Please select your date of birth.</div>
+            </div>
+            <div class="field">
+              <label for="admNo">Admission Number <span class="req">*</span></label>
+              <input type="text" id="admNo" placeholder="" autocomplete="off">
+              <div class="field-error" id="admNoError">Please enter your admission number.</div>
+            </div>
+          </div>
+
+          <!-- Shift -->
+          <div class="field full">
+            <label for="shift">Shift <span class="req">*</span></label>
+            <select id="shift">
+              <option value="" disabled selected>Select your shift</option>
+              <option value="morning">Morning Shift (8:00 AM – 1:00 PM)</option>
+              <option value="afternoon">Afternoon Shift (1:00 PM – 6:00 PM)</option>
+            </select>
+            <div class="field-error" id="shiftError">Please select your shift.</div>
+          </div>
+
+          <div class="section-label">Contact Details</div>
+
+          <!-- Email & Phone -->
+          <div class="form-row">
+            <div class="field">
+              <label for="email">Personal Email <span class="req">*</span></label>
+              <input type="email" id="email" placeholder="Students personal Email ID" autocomplete="email">
+              <div class="field-error" id="emailError">Enter a valid email address.</div>
+            </div>
+            <div class="field">
+              <label for="phone">Phone Number <span class="req">*</span></label>
+              <input type="tel" id="phone" placeholder="Students personal number" maxlength="10" autocomplete="tel">
+              <div class="field-error" id="phoneError">Enter a valid 10-digit number.</div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-submit" id="submitBtn">
+            ✓ &nbsp;Mark Attendance
+          </button>
+
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div>© 2025 Ethiraj College for Women, Chennai. All rights reserved.</div>
+    <div>
+      <a href="mailto:principal@ethirajcollege.edu.in">Contact Administrator</a>
+      <span class="footer-sep">|</span>
+      <a href="https://www.ethirajcollege.edu.in" target="_blank">College Website</a>
+      <span class="footer-sep">|</span>
+      <a href="tel:+914428279189" title="Call Help & Support: +91 44 2827 9189">Help &amp; Support: +(91) 44 2827 9189</a>
+    </div>
+  </footer>
+
+</div>
+
+<!-- SUCCESS OVERLAY -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-card">
+
+    <!-- Animated tick -->
+    <div class="tick-wrap">
+      <svg class="tick-svg" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+        <circle class="tick-circle" cx="40" cy="40" r="36"/>
+        <path class="tick-check" d="M22 41 L35 54 L58 27"/>
+      </svg>
+    </div>
+
+    <div class="success-registered">✓ Attendance Registered</div>
+    <div class="success-title">Attendance Registered<br>Successfully!</div>
+    <div class="success-msg">Welcome,</div>
+    <div class="success-name" id="successName">—</div>
+
+    <div class="success-meta">
+      <div class="meta-row">
+        <span class="meta-key">Admission No.</span>
+        <span class="meta-val" id="metaAdmn">—</span>
+      </div>
+      <div class="meta-row">
+        <span class="meta-key">Shift</span>
+        <span class="meta-val" id="metaShift">—</span>
+      </div>
+      <div class="meta-row">
+        <span class="meta-key">Status</span>
+        <span class="meta-val" style="color:#2ecc71;">Present ✓</span>
+      </div>
+      <div class="meta-row">
+        <span class="meta-key">Marked On</span>
+        <span class="meta-val" id="metaTime">—</span>
+      </div>
+    </div>
+
+    <button class="btn-close" onclick="closeSuccess()">Back to Portal</button>
+  </div>
+</div>
+
+<script>
+  // Set max date for DOB (today)
+  const todayStr = new Date().toISOString().split('T')[0];
+  document.getElementById('dob').setAttribute('max', todayStr);
+
+  /* ─────────────────────────────────────────
+     VALIDATION HELPERS
+  ───────────────────────────────────────── */
+  function setValid(id) {
+    const el = document.getElementById(id);
+    el.classList.remove('error');
+    el.classList.add('valid');
+  }
+
+  function setError(inputId, errorId, msg) {
+    const el = document.getElementById(inputId);
+    el.classList.add('error');
+    el.classList.remove('valid');
+    const err = document.getElementById(errorId);
+    err.textContent = msg;
+    err.classList.add('show');
+  }
+
+  function clearError(inputId, errorId) {
+    document.getElementById(inputId).classList.remove('error', 'valid');
+    document.getElementById(errorId).classList.remove('show');
+  }
+
+  /* ─────────────────────────────────────────
+     FIELD VALIDATORS  (return true = OK)
+  ───────────────────────────────────────── */
+  function validateName() {
+    const v = document.getElementById('fullName').value.trim();
+    if (v.length < 3) { setError('fullName','nameError','Please enter your full name (min. 3 characters).'); return false; }
+    setValid('fullName'); document.getElementById('nameError').classList.remove('show'); return true;
+  }
+
+  function validateDob() {
+    const v = document.getElementById('dob').value;
+    if (!v) { setError('dob','dobError','Please select your date of birth.'); return false; }
+    const birth = new Date(v);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+    if (age < 18) { setError('dob','dobError','Age must be 18 or above to register.'); return false; }
+    setValid('dob'); document.getElementById('dobError').classList.remove('show'); return true;
+  }
+
+  function validateAdmNo() {
+    const v = document.getElementById('admNo').value.trim();
+    if (!/^[A-Za-z0-9]{4,20}$/.test(v)) { setError('admNo','admNoError','Enter a valid admission number.'); return false; }
+    setValid('admNo'); document.getElementById('admNoError').classList.remove('show'); return true;
+  }
+
+  function validateShift() {
+    const v = document.getElementById('shift').value;
+    if (!v) { setError('shift','shiftError','Please select your shift.'); return false; }
+    setValid('shift'); document.getElementById('shiftError').classList.remove('show'); return true;
+  }
+
+  function validateEmail() {
+    const v = document.getElementById('email').value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { setError('email','emailError','Enter a valid email address.'); return false; }
+    setValid('email'); document.getElementById('emailError').classList.remove('show'); return true;
+  }
+
+  function validatePhone() {
+    const v = document.getElementById('phone').value.trim();
+    if (!/^\d{10}$/.test(v)) { setError('phone','phoneError','Enter a valid 10-digit mobile number.'); return false; }
+    setValid('phone'); document.getElementById('phoneError').classList.remove('show'); return true;
+  }
+
+  /* ─────────────────────────────────────────
+     BLUR & INPUT LISTENERS
+     Only trigger after first interaction
+  ───────────────────────────────────────── */
+  const touched = {};
+
+  function addListeners(inputId, validator) {
+    const el = document.getElementById(inputId);
+    el.addEventListener('blur', () => { touched[inputId] = true; validator(); });
+    el.addEventListener('change', () => { if (touched[inputId]) validator(); }); // for date & select
+    el.addEventListener('input', () => { if (touched[inputId]) validator(); });
+  }
+
+  addListeners('fullName', validateName);
+  addListeners('dob',      validateDob);
+  addListeners('admNo',    validateAdmNo);
+  addListeners('shift',    validateShift);
+  addListeners('email',    validateEmail);
+  addListeners('phone',    validatePhone);
+
+  /* ─────────────────────────────────────────
+     FORM SUBMIT
+  ───────────────────────────────────────── */
+  document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // Mark all as touched and run all validators
+    ['fullName','dob','admNo','shift','email','phone'].forEach(id => touched[id] = true);
+
+    const ok =
+      validateName() &
+      validateDob()  &
+      validateAdmNo()&
+      validateShift()&
+      validateEmail()&
+      validatePhone();
+
+    if (!ok) return;
+
+    // Populate success card
+    const name      = document.getElementById('fullName').value.trim();
+    const admn      = document.getElementById('admNo').value.trim().toUpperCase();
+    const shiftVal  = document.getElementById('shift').value;
+    const shiftLabel= shiftVal === 'morning' ? 'Morning Shift (8 AM – 1 PM)' : 'Afternoon Shift (1 PM – 6 PM)';
+    const now       = new Date();
+    const timeStr   = now.toLocaleString('en-IN', {
+      weekday:'long', year:'numeric', month:'long',
+      day:'numeric', hour:'2-digit', minute:'2-digit'
+    });
+
+    document.getElementById('successName').textContent  = name;
+    document.getElementById('metaAdmn').textContent     = admn;
+    document.getElementById('metaShift').textContent    = shiftLabel;
+    document.getElementById('metaTime').textContent     = timeStr;
+
+    document.getElementById('successOverlay').classList.add('show');
+  });
+
+  /* ─────────────────────────────────────────
+     CLOSE SUCCESS
+  ───────────────────────────────────────── */
+  function closeSuccess() {
+    document.getElementById('successOverlay').classList.remove('show');
+    document.getElementById('loginForm').reset();
+    ['fullName','dob','admNo','shift','email','phone'].forEach(id => {
+      touched[id] = false;
+      clearError(id, { fullName:'nameError', dob:'dobError', admNo:'admNoError',
+                       shift:'shiftError', email:'emailError', phone:'phoneError' }[id]);
+    });
+  }
+</script>
+</body>
+</html>
